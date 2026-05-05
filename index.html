@@ -10,7 +10,7 @@
         
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #e5ddd5; /* WhatsApp chat background color */
+            background-color: #e5ddd5; 
             padding: 15px; 
             margin: 0;
             -webkit-font-smoothing: antialiased;
@@ -27,7 +27,6 @@
         }
         
         h2 { margin-top: 0; color: #075e54; font-size: 22px; text-align: center; }
-        
         .header-text { text-align: center; color: #666; font-size: 14px; margin-top: -10px; margin-bottom: 5px; }
         .sub-header-text { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
         
@@ -42,22 +41,15 @@
             font-size: 16px; 
             background-color: #f9f9f9;
             font-family: inherit;
-            appearance: none;
-            -webkit-appearance: none;
         }
         
         input:focus, textarea:focus, select:focus { border-color: #25D366; outline: none; background-color: #fff;}
         
         .checkbox-group { display: flex; align-items: flex-start; background: #f0f2f5; padding: 12px; border-radius: 6px;}
-        .checkbox-group input { margin-right: 12px; width: 22px; height: 22px; margin-top: 0; cursor: pointer; accent-color: #25D366;}
+        .checkbox-group input { margin-right: 12px; width: 22px; height: 22px; cursor: pointer; accent-color: #25D366;}
         .checkbox-group label { font-weight: normal; margin-bottom: 0; cursor: pointer; line-height: 1.4; color: #333;}
         
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 25px;
-        }
+        .button-group { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
         
         .whatsapp-btn { 
             background-color: #25D366; 
@@ -76,10 +68,8 @@
             text-decoration: none; 
             transition: transform 0.1s, background-color 0.2s;
             width: 100%;
-            -webkit-tap-highlight-color: transparent;
         }
         .whatsapp-btn:active { transform: scale(0.98); }
-        .whatsapp-btn:hover { background-color: #1ebe57; }
         .whatsapp-btn svg { width: 24px; height: 24px; fill: white; }
         
         .footer-text { font-size: 12px; color: #666; text-align: center; margin-top: 20px; line-height: 1.5;}
@@ -91,7 +81,7 @@
 
 <div class="form-container">
     <h2>Field Service Report</h2>
-    <p class="header-text"><b>NAVI MUMBAI - [UAT]</b></p>
+    <p class="header-text"><b>NAVI MUMBAI <br>[UAT SERVICE GROUP]</br></b></p>
     <p class="sub-header-text">Fill out the details to send directly via WhatsApp.</p>
     
     <div class="form-group">
@@ -116,7 +106,7 @@
     </div>
     
     <div class="form-group checkbox-group">
-        <input type="checkbox" id="shared" required>
+        <input type="checkbox" id="shared">
         <label for="shared">I shared in some form of the ministry during this month.<span class="required-star">*</span></label>
     </div>
     
@@ -127,7 +117,7 @@
     
     <div class="form-group">
         <label for="hours">Hours:</label>
-        <input type="number" id="hours" placeholder="If auxiliary, regular, or special pioneer" min="0">
+        <input type="number" id="hours" placeholder="(If auxiliary, regular, or special pioneer or field missionary)" min="0">
     </div>
     
     <div class="form-group">
@@ -148,36 +138,66 @@
     </div>
     
     <div class="footer-text">
-        <b>*Compatible with Computer and Android devices.*</b>
+        <b>*Works on all devices (Computer, Android & iOS).*</b>
     </div>
     <div class="contact-owner">
-        >> Please contact page owner: Br. Ravikumar, to report issue. <<
+        >> Please contact page owner: Br. Ravikumar, to report issues. <<
     </div>
 </div>
 
 <script>
+    // Initialize Month restriction on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const monthInput = document.getElementById('month');
+        const now = new Date();
+        
+        let lastMonth = now.getMonth(); 
+        let lastMonthYear = now.getFullYear();
+        
+        if (lastMonth === 0) { 
+            lastMonth = 12;
+            lastMonthYear -= 1;
+        }
+        
+        const formattedLastMonth = `${lastMonthYear}-${String(lastMonth).padStart(2, '0')}`;
+        
+        monthInput.min = formattedLastMonth;
+        monthInput.value = formattedLastMonth;
+    });
+
     function sendToWhatsApp(phoneNumber) {
         const name = document.getElementById('name').value.trim();
         const month = document.getElementById('month').value;
         const sharedCheckbox = document.getElementById('shared');
         const shared = sharedCheckbox.checked ? "Yes" : "No";
         const status = document.getElementById('pioneerStatus').value;
-        const studies = document.getElementById('studies').value;
-        const hours = document.getElementById('hours').value;
+        const studies = document.getElementById('studies').value.trim();
+        const hours = document.getElementById('hours').value.trim();
         const userComments = document.getElementById('comments').value.trim();
 
-        // Standard validation for all users
+        // 1. Basic Mandate Check
         if (!name || !month || !status || !sharedCheckbox.checked) {
-            alert("Please complete all required fields:\n- Name\n- Month\n- Status\n- Confirm Ministry Participation");
+            alert("Please complete all required fields:\n- Name\n- Month\n- Status\n- Confirmation Checkbox");
             return;
         }
 
-        // CONDITIONAL MANDATE: Hours required if status is a Pioneer
-        const isPioneer = status && status !== "Publisher";
-        if (isPioneer && (!hours || hours <= 0)) {
-            alert(`As a ${status}, entering your hours is mandatory.`);
-            document.getElementById('hours').focus();
-            return;
+        // 2. Regular Pioneer Mandate (Studies & Hours)
+        if (status === "Regular Pioneer") {
+            if (studies === "" || studies < 0 || !hours || hours <= 0) {
+                alert("For Regular Pioneers, both 'Bible Studies' and 'Hours' are mandatory.");
+                if (studies === "" || studies < 0) document.getElementById('studies').focus();
+                else document.getElementById('hours').focus();
+                return;
+            }
+        }
+
+        // 3. Auxiliary Pioneer Mandate (Hours Only)
+        if (status.includes("Auxiliary Pioneer")) {
+            if (!hours || hours <= 0) {
+                alert(`As an ${status}, entering your hours is mandatory.`);
+                document.getElementById('hours').focus();
+                return;
+            }
         }
 
         let monthName = month;
@@ -189,20 +209,18 @@
             }
         } catch(e) {}
 
-        let finalComments = "";
-        if (status !== "Publisher") {
-            finalComments = status + (userComments ? " - " + userComments : "");
-        } else {
-            finalComments = userComments;
-        }
+        // Use newline (\n) for Pioneer status followed by user comment on next line
+        let finalComments = status !== "Publisher" ? 
+            status + (userComments ? "\n" + userComments : "") : 
+            userComments;
 
         let message = `*FIELD SERVICE REPORT*\n\n`;
         message += `👤 *Name:* ${name}\n`;
         message += `📅 *Month:* ${monthName}\n`;
         message += `✅ *Shared in ministry:* ${shared}\n`;
         
-        if (studies && studies > 0) message += `📖 *Bible Studies:* ${studies}\n`;
-        if (hours && hours > 0) message += `⏱️ *Hours:* ${hours}\n`;
+        if (studies !== "" && studies >= 0) message += `📖 *Bible Studies:* ${studies}\n`;
+        if (hours !== "" && hours > 0) message += `⏱️ *Hours:* ${hours}\n`;
         if (finalComments) message += `\n📝 *Comments:* ${finalComments}`;
 
         const encodedMessage = encodeURIComponent(message);
