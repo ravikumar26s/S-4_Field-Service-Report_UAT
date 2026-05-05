@@ -84,6 +84,7 @@
         
         .footer-text { font-size: 12px; color: #666; text-align: center; margin-top: 20px; line-height: 1.5;}
         .contact-owner { font-size: 13px; color: #075e54; font-weight: bold; text-align: center; margin-top: 10px;}
+        .required-star { color: #d93025; margin-left: 2px; }
     </style>
 </head>
 <body>
@@ -94,18 +95,19 @@
     <p class="sub-header-text">Fill out the details to send directly via WhatsApp.</p>
     
     <div class="form-group">
-        <label for="name">Name:</label>
+        <label for="name">Name:<span class="required-star">*</span></label>
         <input type="text" id="name" placeholder="Enter your name" required>
     </div>
     
     <div class="form-group">
-        <label for="month">Month:</label>
+        <label for="month">Month:<span class="required-star">*</span></label>
         <input type="month" id="month" required>
     </div>
 
     <div class="form-group">
-        <label for="pioneerStatus">Status:</label>
-        <select id="pioneerStatus">
+        <label for="pioneerStatus">Status:<span class="required-star">*</span></label>
+        <select id="pioneerStatus" required>
+            <option value="" disabled selected>-- Select Status --</option>
             <option value="Publisher">Publisher</option>
             <option value="Auxiliary Pioneer [15 hrs]">Auxiliary Pioneer [15 hrs]</option>
             <option value="Auxiliary Pioneer [30 hrs]">Auxiliary Pioneer [30 hrs]</option>
@@ -114,8 +116,8 @@
     </div>
     
     <div class="form-group checkbox-group">
-        <input type="checkbox" id="shared" checked>
-        <label for="shared">I shared in some form of the ministry during this month.</label>
+        <input type="checkbox" id="shared" required>
+        <label for="shared">I shared in some form of the ministry during this month.<span class="required-star">*</span></label>
     </div>
     
     <div class="form-group">
@@ -157,14 +159,16 @@
     function sendToWhatsApp(phoneNumber) {
         const name = document.getElementById('name').value.trim();
         const month = document.getElementById('month').value;
-        const shared = document.getElementById('shared').checked ? "Yes" : "No";
+        const sharedCheckbox = document.getElementById('shared');
+        const shared = sharedCheckbox.checked ? "Yes" : "No";
         const status = document.getElementById('pioneerStatus').value;
         const studies = document.getElementById('studies').value;
         const hours = document.getElementById('hours').value;
         const userComments = document.getElementById('comments').value.trim();
 
-        if (!name || !month) {
-            alert("Please fill in your Name and Month.");
+        // Updated validation logic for mandate entries
+        if (!name || !month || !status || !sharedCheckbox.checked) {
+            alert("Please complete all required fields:\n- Name\n- Month\n- Status\n- Confirm Ministry Participation (Checkbox)");
             return;
         }
 
