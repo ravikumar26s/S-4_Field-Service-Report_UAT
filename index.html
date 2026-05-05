@@ -2,54 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>S-4 Field Service Report</title>
     <style>
-        /* Responsive, cross-browser CSS reset */
-        * { box-sizing: border-box; }
+        /* Strict containment for iPhone/Mobile */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
+        html, body { 
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden; /* Prevents right-side overflow */
+            -webkit-text-size-adjust: 100%;
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background-color: #e5ddd5; 
-            padding: 15px; 
-            margin: 0;
+            padding: 10px 0; 
             -webkit-font-smoothing: antialiased;
         }
         
         .form-container { 
             background: white; 
-            max-width: 500px; 
-            margin: 20px auto; 
-            padding: 25px; 
+            width: 92%; /* Added safety margin for narrow iOS screens */
+            max-width: 480px; 
+            margin: 10px auto; 
+            padding: 20px 15px; 
             border-radius: 12px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
             border-top: 8px solid #25D366; 
+            position: relative;
         }
         
-        h2 { margin-top: 0; color: #075e54; font-size: 22px; text-align: center; }
-        .header-text { text-align: center; color: #666; font-size: 14px; margin-top: -10px; margin-bottom: 5px; }
+        h2 { margin-top: 0; color: #075e54; font-size: 20px; text-align: center; }
+        .header-text { text-align: center; color: #666; font-size: 14px; margin-top: -10px; margin-bottom: 5px; word-wrap: break-word; }
         .sub-header-text { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
         
-        .form-group { margin-bottom: 20px; }
+        .form-group { margin-bottom: 18px; width: 100%; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 14px;}
         
         input[type="text"], input[type="number"], input[type="month"], textarea, select { 
+            display: block;
             width: 100%; 
+            max-width: 100%;
             padding: 12px; 
             border: 1px solid #ccc; 
             border-radius: 6px; 
-            font-size: 16px; 
+            font-size: 16px; /* Prevents iOS auto-zoom on focus */
             background-color: #f9f9f9;
             font-family: inherit;
+            -webkit-appearance: none;
         }
         
         input:focus, textarea:focus, select:focus { border-color: #25D366; outline: none; background-color: #fff;}
         
-        .checkbox-group { display: flex; align-items: flex-start; background: #f0f2f5; padding: 12px; border-radius: 6px;}
-        .checkbox-group input { margin-right: 12px; width: 22px; height: 22px; cursor: pointer; accent-color: #25D366;}
-        .checkbox-group label { font-weight: normal; margin-bottom: 0; cursor: pointer; line-height: 1.4; color: #333;}
+        .checkbox-group { display: flex; align-items: flex-start; background: #f0f2f5; padding: 12px; border-radius: 6px; width: 100%;}
+        .checkbox-group input { margin-right: 12px; width: 22px; height: 22px; cursor: pointer; accent-color: #25D366; flex-shrink: 0;}
+        .checkbox-group label { font-weight: normal; margin-bottom: 0; cursor: pointer; line-height: 1.4; color: #333; font-size: 14px;}
         
-        .button-group { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
+        .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
         
         .whatsapp-btn { 
             background-color: #25D366; 
@@ -64,16 +76,15 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);
+            box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
             text-decoration: none; 
-            transition: transform 0.1s, background-color 0.2s;
             width: 100%;
         }
         .whatsapp-btn:active { transform: scale(0.98); }
-        .whatsapp-btn svg { width: 24px; height: 24px; fill: white; }
+        .whatsapp-btn svg { width: 22px; height: 22px; fill: white; flex-shrink: 0; }
         
-        .footer-text { font-size: 12px; color: #666; text-align: center; margin-top: 20px; line-height: 1.5;}
-        .contact-owner { font-size: 13px; color: #075e54; font-weight: bold; text-align: center; margin-top: 10px;}
+        .footer-text { font-size: 11px; color: #777; text-align: center; margin-top: 20px; line-height: 1.5; padding: 0 5px;}
+        .contact-owner { font-size: 12px; color: #075e54; font-weight: bold; text-align: center; margin-top: 8px;}
         .required-star { color: #d93025; margin-left: 2px; }
     </style>
 </head>
@@ -81,8 +92,8 @@
 
 <div class="form-container">
     <h2>Field Service Report</h2>
-    <p class="header-text"><b>NAVI MUMBAI <br>[UAT SERVICE GROUP]</br></b></p>
-    <p class="sub-header-text">Fill out the details to send directly via WhatsApp.</p>
+    <p class="header-text"><b>NAVI MUMBAI <br>[UAT SERVICE GROUP]</b></p>
+    <p class="sub-header-text">Fill out details for monthly reporting.</p>
     
     <div class="form-group">
         <label for="name">Name:<span class="required-star">*</span></label>
@@ -112,12 +123,12 @@
     
     <div class="form-group">
         <label for="studies">Bible Studies:</label>
-        <input type="number" id="studies" placeholder="Number of different Bible studies conducted" min="0">
+        <input type="number" id="studies" placeholder="Required for Regular Pioneers" min="0">
     </div>
     
     <div class="form-group">
         <label for="hours">Hours:</label>
-        <input type="number" id="hours" placeholder="(If auxiliary, regular, or special pioneer or field missionary)" min="0">
+        <input type="number" id="hours" placeholder="Required for Pioneers" min="0">
     </div>
     
     <div class="form-group">
@@ -146,58 +157,57 @@
 </div>
 
 <script>
-    // Initialize Month restriction on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
         const monthInput = document.getElementById('month');
         const now = new Date();
         
-        let lastMonth = now.getMonth(); 
-        let lastMonthYear = now.getFullYear();
+        // Calculate the previous month reliably
+        const d = new Date(now.getFullYear(), now.getMonth(), 1);
+        d.setMonth(d.getMonth() - 1);
         
-        if (lastMonth === 0) { 
-            lastMonth = 12;
-            lastMonthYear -= 1;
-        }
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const lastMonthStr = yyyy + '-' + mm;
         
-        const formattedLastMonth = `${lastMonthYear}-${String(lastMonth).padStart(2, '0')}`;
-        
-        monthInput.min = formattedLastMonth;
-        monthInput.value = formattedLastMonth;
-    });
+        // Set both min restriction and auto-populate value
+        monthInput.setAttribute('min', lastMonthStr);
+        monthInput.value = lastMonthStr;
+    })();
 
     function sendToWhatsApp(phoneNumber) {
         const name = document.getElementById('name').value.trim();
         const month = document.getElementById('month').value;
+        const minMonth = document.getElementById('month').getAttribute('min');
         const sharedCheckbox = document.getElementById('shared');
-        const shared = sharedCheckbox.checked ? "Yes" : "No";
         const status = document.getElementById('pioneerStatus').value;
         const studies = document.getElementById('studies').value.trim();
         const hours = document.getElementById('hours').value.trim();
         const userComments = document.getElementById('comments').value.trim();
 
-        // 1. Basic Mandate Check
+        // Standard mandate validation
         if (!name || !month || !status || !sharedCheckbox.checked) {
-            alert("Please complete all required fields:\n- Name\n- Month\n- Status\n- Confirmation Checkbox");
+            alert("Please complete Name, Month, Status, and Ministry Checkbox.");
             return;
         }
 
-        // 2. Regular Pioneer Mandate (Studies & Hours)
+        // iPhone/iOS Hard Validation: Block months older than last month
+        if (month < minMonth) {
+            alert("Reporting is only allowed for the last month or current month.");
+            return;
+        }
+
+        // Regular Pioneer Mandate
         if (status === "Regular Pioneer") {
             if (studies === "" || studies < 0 || !hours || hours <= 0) {
                 alert("For Regular Pioneers, both 'Bible Studies' and 'Hours' are mandatory.");
-                if (studies === "" || studies < 0) document.getElementById('studies').focus();
-                else document.getElementById('hours').focus();
                 return;
             }
         }
 
-        // 3. Auxiliary Pioneer Mandate (Hours Only)
-        if (status.includes("Auxiliary Pioneer")) {
-            if (!hours || hours <= 0) {
-                alert(`As an ${status}, entering your hours is mandatory.`);
-                document.getElementById('hours').focus();
-                return;
-            }
+        // Auxiliary Pioneer Mandate
+        if (status.includes("Auxiliary Pioneer") && (!hours || hours <= 0)) {
+            alert(`As an ${status}, entering your hours is mandatory.`);
+            return;
         }
 
         let monthName = month;
@@ -209,15 +219,14 @@
             }
         } catch(e) {}
 
-        // Use newline (\n) for Pioneer status followed by user comment on next line
         let finalComments = status !== "Publisher" ? 
-            status + (userComments ? "\n" + userComments : "") : 
+            status + (userComments ? "\n" + userComments : "") :
             userComments;
 
         let message = `*FIELD SERVICE REPORT*\n\n`;
         message += `👤 *Name:* ${name}\n`;
         message += `📅 *Month:* ${monthName}\n`;
-        message += `✅ *Shared in ministry:* ${shared}\n`;
+        message += `✅ *Shared in ministry:* Yes\n`;
         
         if (studies !== "" && studies >= 0) message += `📖 *Bible Studies:* ${studies}\n`;
         if (hours !== "" && hours > 0) message += `⏱️ *Hours:* ${hours}\n`;
