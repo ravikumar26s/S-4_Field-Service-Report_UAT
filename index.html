@@ -127,7 +127,7 @@
     
     <div class="form-group">
         <label for="hours">Hours:</label>
-        <input type="number" id="hours" placeholder="Hours spent in ministry" min="0">
+        <input type="number" id="hours" placeholder="If auxiliary, regular, or special pioneer" min="0">
     </div>
     
     <div class="form-group">
@@ -166,9 +166,17 @@
         const hours = document.getElementById('hours').value;
         const userComments = document.getElementById('comments').value.trim();
 
-        // Updated validation logic for mandate entries
+        // Standard validation for all users
         if (!name || !month || !status || !sharedCheckbox.checked) {
-            alert("Please complete all required fields:\n- Name\n- Month\n- Status\n- Confirm Ministry Participation (Checkbox)");
+            alert("Please complete all required fields:\n- Name\n- Month\n- Status\n- Confirm Ministry Participation");
+            return;
+        }
+
+        // CONDITIONAL MANDATE: Hours required if status is a Pioneer
+        const isPioneer = status && status !== "Publisher";
+        if (isPioneer && (!hours || hours <= 0)) {
+            alert(`As a ${status}, entering your hours is mandatory.`);
+            document.getElementById('hours').focus();
             return;
         }
 
@@ -181,7 +189,6 @@
             }
         } catch(e) {}
 
-        // Prepend pioneer status to comments automatically if not a standard Publisher
         let finalComments = "";
         if (status !== "Publisher") {
             finalComments = status + (userComments ? " - " + userComments : "");
