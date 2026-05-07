@@ -110,8 +110,8 @@
         <select id="pioneerStatus" required>
             <option value="" disabled selected>-- Select Status --</option>
             <option value="Publisher">Publisher</option>
-            <option value="Auxiliary Pioneer [15 hrs]">Auxiliary Pioneer [15 hrs]</option>
-            <option value="Auxiliary Pioneer [30 hrs]">Auxiliary Pioneer [30 hrs]</option>
+            <option value="Auxiliary Pioneer—[15 hrs]">Auxiliary Pioneer—[15 hrs]</option>
+            <option value="Auxiliary Pioneer—[30 hrs]">Auxiliary Pioneer—[30 hrs]</option>
             <option value="Regular Pioneer">Regular Pioneer</option>
         </select>
     </div>
@@ -172,7 +172,6 @@
     })();
 
     function sendToWhatsApp(phoneNumber) {
-        // Collect form data
         const name = document.getElementById('name').value.trim();
         const month = document.getElementById('month').value;
         const minMonth = document.getElementById('month').getAttribute('min');
@@ -182,13 +181,11 @@
         const hours = document.getElementById('hours').value.trim();
         const userComments = document.getElementById('comments').value.trim();
 
-        // Standard validation
         if (!name || !month || !status || !sharedCheckbox.checked) {
             alert("Please complete Name, Month, Status, and Ministry Checkbox.");
             return;
         }
 
-        // Pioneer-specific validation
         if (status === "Regular Pioneer") {
             if (studies === "" || studies < 0 || !hours || hours <= 0) {
                 alert("For Regular Pioneers, both 'Bible Studies' and 'Hours' are mandatory.");
@@ -201,7 +198,6 @@
             return;
         }
 
-        // Format month name
         let monthName = month;
         try {
             const dateParts = month.split('-');
@@ -211,26 +207,36 @@
             }
         } catch(e) {}
 
-        // Construct message
-        let finalComments = status !== "Publisher" ? status + (userComments ? "\n" + userComments : "") : userComments;
-        let message = `*FIELD SERVICE REPORT*\n\n👤 *Name:* ${name}\n📅 *Month:* ${monthName}\n✅ *Shared in ministry:* Yes\n`;
+        // --- UPDATED COMMENT LOGIC ---
+        // 1. Start with the Pioneer Status (if not just a publisher)
+        // 2. If there's a manual comment, add it on a NEW LINE
+        let finalComments = "";
+        if (status !== "Publisher") {
+            finalComments = status;
+            if (userComments) {
+                finalComments += "\n" + userComments;
+            }
+        } else {
+            finalComments = userComments;
+        }
+
+        let message = `*FIELD SERVICE REPORT*\n\n`;
+        message += `👤 *Name:* ${name}\n`;
+        message += `📅 *Month:* ${monthName}\n`;
+        message += `✅ *Shared in ministry:* Yes\n`;
+        
         if (studies !== "" && studies >= 0) message += `📖 *Bible Studies:* ${studies}\n`;
         if (hours !== "" && hours > 0) message += `⏱️ *Hours:* ${hours}\n`;
         if (finalComments) message += `\n📝 *Comments:* ${finalComments}`;
 
         const encodedMessage = encodeURIComponent(message);
-
-        // --- NEW IMPROVED REDIRECTION LOGIC ---
-        // Using Universal Link (api.whatsapp.com) to automatically trigger App vs Web fallback
         const universalUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
 
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         if (isMobile) {
-            // Mobile devices (iOS/Android) prefer direct redirection to trigger the app prompt
             window.location.href = universalUrl;
         } else {
-            // Desktop browsers work best opening in a new tab to allow "WhatsApp Web" choice
             window.open(universalUrl, '_blank', 'noopener,noreferrer');
         }
     }
