@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            overflow-x: hidden;
+            overflow-x: hidden; 
             -webkit-text-size-adjust: 100%;
         }
 
@@ -208,13 +208,11 @@
         } catch(e) {}
 
         // --- UPDATED COMMENT LOGIC ---
-        // 1. Start with the Pioneer Status (if not just a publisher)
-        // 2. If there's a manual comment, add it on a NEW LINE
         let finalComments = "";
         if (status !== "Publisher") {
             finalComments = status;
             if (userComments) {
-                finalComments += "\n" + userComments;
+                finalComments += "\n" + userComments; // Adds manual comment on a new line
             }
         } else {
             finalComments = userComments;
@@ -230,14 +228,30 @@
         if (finalComments) message += `\n📝 *Comments:* ${finalComments}`;
 
         const encodedMessage = encodeURIComponent(message);
-        const universalUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+        
+        // --- UPDATED APP DETECTION LOGIC ---
+        // Protocol-first: This triggers Standard or Business App schemes
+        const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
+        
+        // Web Fallback: This triggers the official WhatsApp API portal
+        const webUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
 
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         if (isMobile) {
-            window.location.href = universalUrl;
+            // Try to open the app via the registered protocol
+            window.location.href = appUrl;
+
+            // Timer: If the page is still visible after 1.5s, the app isn't installed.
+            // Redirect to the web fallback
+            setTimeout(() => {
+                if (!document.hidden) {
+                    window.location.href = webUrl;
+                }
+            }, 1500);
         } else {
-            window.open(universalUrl, '_blank', 'noopener,noreferrer');
+            // Desktop logic remains stable with the API link
+            window.open(webUrl, '_blank', 'noopener,noreferrer');
         }
     }
 </script>
