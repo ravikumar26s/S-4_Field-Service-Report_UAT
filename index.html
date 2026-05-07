@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            overflow-x: hidden; /* Prevents right-side overflow */
+            overflow-x: hidden;
             -webkit-text-size-adjust: 100%;
         }
 
@@ -25,7 +25,7 @@
         
         .form-container { 
             background: white; 
-            width: 92%; /* Added safety margin for narrow iOS screens */
+            width: 92%; 
             max-width: 480px; 
             margin: 10px auto; 
             padding: 20px 15px; 
@@ -49,7 +49,7 @@
             padding: 12px; 
             border: 1px solid #ccc; 
             border-radius: 6px; 
-            font-size: 16px; /* Prevents iOS auto-zoom on focus */
+            font-size: 16px; 
             background-color: #f9f9f9;
             font-family: inherit;
             -webkit-appearance: none;
@@ -92,7 +92,7 @@
 
 <div class="form-container">
     <h2>Field Service Report</h2>
-    <p class="header-text"><b>NAVI MUMBAI <br>[UAT SERVICE GROUP]</b></p>
+    <p class="header-text"><b>NAVI MUMBAI KALAMBOLI<br>[UAT SERVICE GROUP]</b></p>
     <p class="sub-header-text">Fill out details for monthly reporting.</p>
     
     <div class="form-group">
@@ -123,12 +123,12 @@
     
     <div class="form-group">
         <label for="studies">Bible Studies:</label>
-        <input type="number" id="studies" placeholder="Required for Regular Pioneers" min="0">
+        <input type="number" id="studies" placeholder="Number of different Bible studies conducted" min="0">
     </div>
     
     <div class="form-group">
         <label for="hours">Hours:</label>
-        <input type="number" id="hours" placeholder="Required for Pioneers" min="0">
+        <input type="number" id="hours" placeholder="(If auxiliary, regular, or special pioneer or field missionary)" min="0">
     </div>
     
     <div class="form-group">
@@ -160,8 +160,6 @@
     (function() {
         const monthInput = document.getElementById('month');
         const now = new Date();
-        
-        // Calculate the previous month reliably
         const d = new Date(now.getFullYear(), now.getMonth(), 1);
         d.setMonth(d.getMonth() - 1);
         
@@ -169,12 +167,12 @@
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const lastMonthStr = yyyy + '-' + mm;
         
-        // Set both min restriction and auto-populate value
         monthInput.setAttribute('min', lastMonthStr);
         monthInput.value = lastMonthStr;
     })();
 
     function sendToWhatsApp(phoneNumber) {
+        // Collect form data
         const name = document.getElementById('name').value.trim();
         const month = document.getElementById('month').value;
         const minMonth = document.getElementById('month').getAttribute('min');
@@ -184,19 +182,13 @@
         const hours = document.getElementById('hours').value.trim();
         const userComments = document.getElementById('comments').value.trim();
 
-        // Standard mandate validation
+        // Standard validation
         if (!name || !month || !status || !sharedCheckbox.checked) {
             alert("Please complete Name, Month, Status, and Ministry Checkbox.");
             return;
         }
 
-        // iPhone/iOS Hard Validation: Block months older than last month
-        if (month < minMonth) {
-            alert("Reporting is only allowed for the last month or current month.");
-            return;
-        }
-
-        // Regular Pioneer Mandate
+        // Pioneer-specific validation
         if (status === "Regular Pioneer") {
             if (studies === "" || studies < 0 || !hours || hours <= 0) {
                 alert("For Regular Pioneers, both 'Bible Studies' and 'Hours' are mandatory.");
@@ -204,12 +196,12 @@
             }
         }
 
-        // Auxiliary Pioneer Mandate
         if (status.includes("Auxiliary Pioneer") && (!hours || hours <= 0)) {
             alert(`As an ${status}, entering your hours is mandatory.`);
             return;
         }
 
+        // Format month name
         let monthName = month;
         try {
             const dateParts = month.split('-');
@@ -219,29 +211,27 @@
             }
         } catch(e) {}
 
-        let finalComments = status !== "Publisher" ? 
-            status + (userComments ? "\n" + userComments : "") :
-            userComments;
-
-        let message = `*FIELD SERVICE REPORT*\n\n`;
-        message += `👤 *Name:* ${name}\n`;
-        message += `📅 *Month:* ${monthName}\n`;
-        message += `✅ *Shared in ministry:* Yes\n`;
-        
+        // Construct message
+        let finalComments = status !== "Publisher" ? status + (userComments ? "\n" + userComments : "") : userComments;
+        let message = `*FIELD SERVICE REPORT*\n\n👤 *Name:* ${name}\n📅 *Month:* ${monthName}\n✅ *Shared in ministry:* Yes\n`;
         if (studies !== "" && studies >= 0) message += `📖 *Bible Studies:* ${studies}\n`;
         if (hours !== "" && hours > 0) message += `⏱️ *Hours:* ${hours}\n`;
         if (finalComments) message += `\n📝 *Comments:* ${finalComments}`;
 
         const encodedMessage = encodeURIComponent(message);
-        const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+        // --- NEW IMPROVED REDIRECTION LOGIC ---
+        // Using Universal Link (api.whatsapp.com) to automatically trigger App vs Web fallback
+        const universalUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        if (isIOS) {
-            window.location.href = url;
+        if (isMobile) {
+            // Mobile devices (iOS/Android) prefer direct redirection to trigger the app prompt
+            window.location.href = universalUrl;
         } else {
-            window.open(url, '_blank', 'noopener,noreferrer');
+            // Desktop browsers work best opening in a new tab to allow "WhatsApp Web" choice
+            window.open(universalUrl, '_blank', 'noopener,noreferrer');
         }
     }
 </script>
