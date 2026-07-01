@@ -39,6 +39,21 @@
         .header-text { text-align: center; color: #666; font-size: 14px; margin-top: -10px; margin-bottom: 5px; word-wrap: break-word; }
         .sub-header-text { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
         
+        /* Custom Error Box - Now designed for the top */
+        #error-box {
+            display: none;
+            background-color: #fce8e6;
+            color: #d93025;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #f9cdca;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
         .form-group { margin-bottom: 18px; width: 100%; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 14px;}
         
@@ -61,21 +76,6 @@
         .checkbox-group input { margin-right: 12px; width: 22px; height: 22px; cursor: pointer; accent-color: #25D366; flex-shrink: 0;}
         .checkbox-group label { font-weight: normal; margin-bottom: 0; cursor: pointer; line-height: 1.4; color: #333; font-size: 14px;}
         
-        /* Custom Error Box (Replaces Alerts) */
-        #error-box {
-            display: none;
-            background-color: #fce8e6;
-            color: #d93025;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #f9cdca;
-            margin-bottom: 15px;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-            line-height: 1.4;
-        }
-
         .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         
         .whatsapp-btn { 
@@ -121,6 +121,8 @@
     <p class="header-text"><b>NAVI MUMBAI KALAMBOLI<br>[KHARGHAR SERVICE GROUP]</b></p>
     <p class="sub-header-text">Fill out details for monthly reporting.</p>
     
+    <div id="error-box"></div>
+    
     <div class="form-group">
         <label for="name">Name:<span class="required-star">*</span></label>
         <input type="text" id="name" placeholder="Enter your name" required>
@@ -161,8 +163,6 @@
         <label for="comments">Comments:</label>
         <textarea id="comments" rows="3" placeholder="Any remarks..."></textarea>
     </div>
-    
-    <div id="error-box"></div>
 
     <div class="button-group">
         <button type="button" class="whatsapp-btn" onclick="sendToWhatsApp('917738256655', false)">
@@ -201,17 +201,25 @@
         monthInput.value = lastMonthStr;
     })();
 
-    // Helper function to display errors on screen instead of using alerts
+    let errorTimeout; // Stores the timer
+
+    // Helper function to display errors on screen
     function showFormError(message) {
         const errorBox = document.getElementById('error-box');
         if (errorBox) {
             errorBox.innerText = message;
             errorBox.style.display = 'block';
             
-            // Auto-hide the message after 5 seconds for a cleaner look
-            setTimeout(() => {
+            // Smoothly scroll to the top so the user sees the message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Clear any existing timer so it doesn't close prematurely
+            if (errorTimeout) clearTimeout(errorTimeout);
+            
+            // Auto-hide the message after 10 seconds (increased from 5s)
+            errorTimeout = setTimeout(() => {
                 errorBox.style.display = 'none';
-            }, 5000);
+            }, 10000); 
         }
     }
 
@@ -306,8 +314,9 @@
 
         const encodedMessage = encodeURIComponent(message);
         
+        // Changed fallback from api.whatsapp.com to wa.me (bypasses most blocks)
         const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
-        const webUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+        const webUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
@@ -323,7 +332,7 @@
                 window.open(webUrl, '_blank', 'noopener,noreferrer');
             }
         } catch (err) {
-            showFormError("Error trying to open WhatsApp. Please try again.");
+            showFormError("Error trying to open WhatsApp. Please check your browser popup blocker or adblock settings.");
         }
     }
 </script>
