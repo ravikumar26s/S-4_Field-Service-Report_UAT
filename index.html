@@ -148,13 +148,11 @@
     </div>
     
     <div class="button-group">
-        <!-- Added boolean 'false' to indicate this is not the assistant -->
         <button type="button" class="whatsapp-btn" onclick="sendToWhatsApp('917738256655', false)">
             <svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157.1zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
             Send to Group Overseer
         </button>
 
-        <!-- Added id="btnAssistant" and boolean 'true' to indicate this is the assistant -->
         <button type="button" id="btnAssistant" class="whatsapp-btn" onclick="sendToWhatsApp('919987378445', true)">
             <svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157.1zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
             Send to Group Assistant
@@ -172,6 +170,8 @@
 <script>
     (function() {
         const monthInput = document.getElementById('month');
+        if (!monthInput) return;
+        
         const now = new Date();
         const d = new Date(now.getFullYear(), now.getMonth(), 1);
         d.setMonth(d.getMonth() - 1);
@@ -184,46 +184,60 @@
         monthInput.value = lastMonthStr;
     })();
 
-    // Event listener to dynamically visually disable/enable the assistant button
-    document.getElementById('pioneerStatus').addEventListener('change', function() {
-        const btnAssistant = document.getElementById('btnAssistant');
-        if (this.value === 'Regular Pioneer') {
-            btnAssistant.classList.add('disabled-btn');
-        } else {
-            btnAssistant.classList.remove('disabled-btn');
-        }
-    });
+    // Added safety check so it won't crash if it can't find the button
+    const pioneerStatusDropdown = document.getElementById('pioneerStatus');
+    if (pioneerStatusDropdown) {
+        pioneerStatusDropdown.addEventListener('change', function() {
+            const btnAssistant = document.getElementById('btnAssistant');
+            if (btnAssistant) {
+                if (this.value === 'Regular Pioneer') {
+                    btnAssistant.classList.add('disabled-btn');
+                } else {
+                    btnAssistant.classList.remove('disabled-btn');
+                }
+            }
+        });
+    }
 
-    // Modified function signature to accept `isAssistant`
-    function sendToWhatsApp(phoneNumber, isAssistant) {
-        const name = document.getElementById('name').value.trim();
-        const month = document.getElementById('month').value;
-        const minMonth = document.getElementById('month').getAttribute('min');
+    // Defaulted isAssistant to false just in case it's missed in the HTML
+    function sendToWhatsApp(phoneNumber, isAssistant = false) {
+        const nameInput = document.getElementById('name');
+        const monthInput = document.getElementById('month');
+        const statusElement = document.getElementById('pioneerStatus');
         const sharedCheckbox = document.getElementById('shared');
-        const status = document.getElementById('pioneerStatus').value;
-        const studies = document.getElementById('studies').value.trim();
-        const hours = document.getElementById('hours').value.trim();
-        const userComments = document.getElementById('comments').value.trim();
+        const studiesInput = document.getElementById('studies');
+        const hoursInput = document.getElementById('hours');
+        const commentsInput = document.getElementById('comments');
+
+        // Extract values safely
+        const name = nameInput ? nameInput.value.trim() : "";
+        const month = monthInput ? monthInput.value : "";
+        const status = statusElement ? statusElement.value : "";
+        const studies = studiesInput ? studiesInput.value.trim() : "";
+        const hours = hoursInput ? hoursInput.value.trim() : "";
+        const userComments = commentsInput ? commentsInput.value.trim() : "";
+        const isShared = sharedCheckbox ? sharedCheckbox.checked : false;
 
         // Check if Regular Pioneer is trying to send to the assistant
         if (status === "Regular Pioneer" && isAssistant) {
             alert("Should only send to Group Overseer.");
-            return; // Stops the function execution here
+            return;
         }
 
-        if (!name || !month || !status || !sharedCheckbox.checked) {
-            alert("Please complete Name, Month, Status, and Ministry Checkbox.");
+        // Standard validation (Alerts pop up if incomplete)
+        if (!name || !month || !status || !isShared) {
+            alert("Please complete Name, Month, Status, and check the Ministry Checkbox.");
             return;
         }
 
         if (status === "Regular Pioneer") {
-            if (studies === "" || studies < 0 || !hours || hours <= 0) {
+            if (studies === "" || Number(studies) < 0 || !hours || Number(hours) <= 0) {
                 alert("For Regular Pioneers, both 'Bible Studies' and 'Hours' are mandatory.");
                 return;
             }
         }
 
-        if (status.includes("Auxiliary Pioneer") && (!hours || hours <= 0)) {
+        if (status.includes("Auxiliary Pioneer") && (!hours || Number(hours) <= 0)) {
             alert(`As an ${status}, entering your hours is mandatory.`);
             return;
         }
@@ -237,12 +251,11 @@
             }
         } catch(e) {}
 
-        // --- UPDATED COMMENT LOGIC ---
         let finalComments = "";
         if (status !== "Publisher") {
             finalComments = status;
             if (userComments) {
-                finalComments += "\n" + userComments; // Adds manual comment on a new line
+                finalComments += "\n" + userComments; 
             }
         } else {
             finalComments = userComments;
@@ -253,35 +266,31 @@
         message += `📅 *Month:* ${monthName}\n`;
         message += `✅ *Shared in ministry:* Yes\n`;
         
-        if (studies !== "" && studies >= 0) message += `📖 *Bible Studies:* ${studies}\n`;
-        if (hours !== "" && hours > 0) message += `⏱️ *Hours:* ${hours}\n`;
+        if (studies !== "" && Number(studies) >= 0) message += `📖 *Bible Studies:* ${studies}\n`;
+        if (hours !== "" && Number(hours) > 0) message += `⏱️ *Hours:* ${hours}\n`;
         if (finalComments) message += `\n📝 *Comments:* ${finalComments}`;
 
         const encodedMessage = encodeURIComponent(message);
         
-        // --- UPDATED APP DETECTION LOGIC ---
-        // Protocol-first: This triggers Standard or Business App schemes
         const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
-        
-        // Web Fallback: This triggers the official WhatsApp API portal
         const webUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
 
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        if (isMobile) {
-            // Try to open the app via the registered protocol
-            window.location.href = appUrl;
-
-            // Timer: If the page is still visible after 1.5s, the app isn't installed.
-            // Redirect to the web fallback
-            setTimeout(() => {
-                if (!document.hidden) {
-                    window.location.href = webUrl;
-                }
-            }, 1500);
-        } else {
-            // Desktop logic remains stable with the API link
-            window.open(webUrl, '_blank', 'noopener,noreferrer');
+        try {
+            if (isMobile) {
+                window.location.href = appUrl;
+                setTimeout(() => {
+                    if (!document.hidden) {
+                        window.location.href = webUrl;
+                    }
+                }, 1500);
+            } else {
+                window.open(webUrl, '_blank', 'noopener,noreferrer');
+            }
+        } catch (err) {
+            console.error("WhatsApp routing error: ", err);
+            alert("Error trying to open WhatsApp. Please try again.");
         }
     }
 </script>
