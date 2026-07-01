@@ -61,7 +61,22 @@
         .checkbox-group input { margin-right: 12px; width: 22px; height: 22px; cursor: pointer; accent-color: #25D366; flex-shrink: 0;}
         .checkbox-group label { font-weight: normal; margin-bottom: 0; cursor: pointer; line-height: 1.4; color: #333; font-size: 14px;}
         
-        .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
+        /* Custom Error Box (Replaces Alerts) */
+        #error-box {
+            display: none;
+            background-color: #fce8e6;
+            color: #d93025;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #f9cdca;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         
         .whatsapp-btn { 
             background-color: #25D366; 
@@ -84,9 +99,9 @@
         .whatsapp-btn:active { transform: scale(0.98); }
         .whatsapp-btn svg { width: 22px; height: 22px; fill: white; flex-shrink: 0; }
         
-        /* New class to visually disable the assistant button */
+        /* Visual disable for the assistant button */
         .whatsapp-btn.disabled-btn {
-            background-color: #9bd7b0;
+            background-color: #a8e8bc;
             cursor: not-allowed;
             box-shadow: none;
         }
@@ -147,6 +162,8 @@
         <textarea id="comments" rows="3" placeholder="Any remarks..."></textarea>
     </div>
     
+    <div id="error-box"></div>
+
     <div class="button-group">
         <button type="button" class="whatsapp-btn" onclick="sendToWhatsApp('917738256655', false)">
             <svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157.1zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
@@ -184,7 +201,21 @@
         monthInput.value = lastMonthStr;
     })();
 
-    // Added safety check so it won't crash if it can't find the button
+    // Helper function to display errors on screen instead of using alerts
+    function showFormError(message) {
+        const errorBox = document.getElementById('error-box');
+        if (errorBox) {
+            errorBox.innerText = message;
+            errorBox.style.display = 'block';
+            
+            // Auto-hide the message after 5 seconds for a cleaner look
+            setTimeout(() => {
+                errorBox.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Visually gray out the assistant button
     const pioneerStatusDropdown = document.getElementById('pioneerStatus');
     if (pioneerStatusDropdown) {
         pioneerStatusDropdown.addEventListener('change', function() {
@@ -199,8 +230,11 @@
         });
     }
 
-    // Defaulted isAssistant to false just in case it's missed in the HTML
     function sendToWhatsApp(phoneNumber, isAssistant = false) {
+        // Clear any old errors
+        const errorBox = document.getElementById('error-box');
+        if (errorBox) errorBox.style.display = 'none';
+
         const nameInput = document.getElementById('name');
         const monthInput = document.getElementById('month');
         const statusElement = document.getElementById('pioneerStatus');
@@ -209,7 +243,7 @@
         const hoursInput = document.getElementById('hours');
         const commentsInput = document.getElementById('comments');
 
-        // Extract values safely
+        // Extract values
         const name = nameInput ? nameInput.value.trim() : "";
         const month = monthInput ? monthInput.value : "";
         const status = statusElement ? statusElement.value : "";
@@ -220,25 +254,25 @@
 
         // Check if Regular Pioneer is trying to send to the assistant
         if (status === "Regular Pioneer" && isAssistant) {
-            alert("Should only send to Group Overseer.");
+            showFormError("Regular Pioneers should only send their report to the Group Overseer.");
             return;
         }
 
-        // Standard validation (Alerts pop up if incomplete)
+        // Standard validations
         if (!name || !month || !status || !isShared) {
-            alert("Please complete Name, Month, Status, and check the Ministry Checkbox.");
+            showFormError("Please complete Name, Month, Status, and check the Ministry Checkbox.");
             return;
         }
 
         if (status === "Regular Pioneer") {
             if (studies === "" || Number(studies) < 0 || !hours || Number(hours) <= 0) {
-                alert("For Regular Pioneers, both 'Bible Studies' and 'Hours' are mandatory.");
+                showFormError("For Regular Pioneers, both 'Bible Studies' and 'Hours' are mandatory.");
                 return;
             }
         }
 
         if (status.includes("Auxiliary Pioneer") && (!hours || Number(hours) <= 0)) {
-            alert(`As an ${status}, entering your hours is mandatory.`);
+            showFormError(`As an ${status}, entering your hours is mandatory.`);
             return;
         }
 
@@ -289,8 +323,7 @@
                 window.open(webUrl, '_blank', 'noopener,noreferrer');
             }
         } catch (err) {
-            console.error("WhatsApp routing error: ", err);
-            alert("Error trying to open WhatsApp. Please try again.");
+            showFormError("Error trying to open WhatsApp. Please try again.");
         }
     }
 </script>
