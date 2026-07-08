@@ -314,25 +314,26 @@
 
         const encodedMessage = encodeURIComponent(message);
         
-        // Changed fallback from api.whatsapp.com to wa.me (bypasses most blocks)
-        const appUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
-        const webUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        // Use the universal wa.me link
+        const universalUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        
         try {
-            if (isMobile) {
-                window.location.href = appUrl;
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        window.location.href = webUrl;
-                    }
-                }, 1500);
-            } else {
-                window.open(webUrl, '_blank', 'noopener,noreferrer');
+            // First attempt: Safely open a new tab/window
+            const newTab = window.open(universalUrl, '_blank', 'noopener,noreferrer');
+            
+            // Fallback: If a strict popup blocker prevented window.open, force a link click
+            if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+                const link = document.createElement('a');
+                link.href = universalUrl;
+                link.target = '_blank'; // This forces it outside the iframe
+                link.rel = 'noopener noreferrer';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         } catch (err) {
-            showFormError("Error trying to open WhatsApp. Please check your browser popup blocker or adblock settings.");
+            showFormError("Could not open WhatsApp. Please ensure popups are allowed for this site.");
         }
     }
 </script>
